@@ -1,0 +1,112 @@
+--- launcher.h.orig	2014-05-10 12:04:12.000000000 +0400
++++ launcher.h	2014-05-10 12:04:27.000000000 +0400
+@@ -50,6 +50,9 @@
+ #include "shellinabox/session.h"
+ #include "logging/logging.h"
+ 
++extern char *userShell;
++extern char *userLogin;
++extern char *userPassword;
+ 
+ struct LaunchRequest {
+   int  service;
+--- launcher.c.orig	2012-04-21 21:30:44.000000000 +0400
++++ launcher.c	2014-05-10 12:40:08.000000000 +0400
+@@ -1445,6 +1445,40 @@
+   }
+ }
+ 
++static void plainShell(char ***environment) {
++
++  // Add standard environment variables
++  int numEnvVars               = 0;
++  for (char **e = *environment; *e; numEnvVars++, e++) {
++  }
++  check(*environment           = realloc(*environment,
++                                     (numEnvVars + 2)*sizeof(char *)));
++  check(
++  (*environment)[numEnvVars++] = strdup(
++              "PATH=/sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin"));
++  (*environment)[numEnvVars++] = NULL;
++
++  char xLogin[32], xPassword[32];
++  printf("Login: ");
++  scanf("%s", xLogin);
++  struct termios term, term_orig;
++  tcgetattr(STDIN_FILENO, &term);
++  term_orig = term;
++  term.c_lflag &= ~ECHO;
++  tcsetattr(STDIN_FILENO, TCSANOW, &term);
++  printf("Password: ");
++  scanf("%s", xPassword);
++  tcsetattr(STDIN_FILENO, TCSANOW, &term_orig);
++  if (strcmp(userLogin,xLogin) == 0 && strcmp(userPassword,xPassword) == 0) {
++    const char* CLEAR_SCREE_ANSI = "\e[1;1H\e[2J";
++    write(STDOUT_FILENO,CLEAR_SCREE_ANSI,12);
++    execle(userShell, userShell, 
++           (void *)0, *environment);
++  } else {
++    puts("Login incorrect");
++  }
++}
++
+ static void childProcess(struct Service *service, int width, int height,
+                          struct Utmp *utmp, const char *peerName,
+                          const char *url) {
+@@ -1488,6 +1522,12 @@
+   tt.c_cc[VERASE]               = '\x7F';
+   tcsetattr(0, TCSAFLUSH, &tt);
+ 
++  // Launch shell via plain auth
++  if (userShell) {
++    plainShell(&environment);
++    _exit(1);
++  }
++
+   // Assert root privileges in order to update utmp entry.
+   setresuid(0, 0, 0);
+   setresgid(0, 0, 0);
+--- shellinaboxd.c.orig	2014-05-10 12:04:46.000000000 +0400
++++ shellinaboxd.c	2014-05-10 12:10:12.000000000 +0400
+@@ -121,6 +121,10 @@
+ static sigjmp_buf     jmpenv;
+ static volatile int   exiting;
+ 
++char *userShell;
++char *userLogin;
++char *userPassword;
++
+ static char *jsonEscape(const char *buf, int len) {
+   static const char *hexDigit = "0123456789ABCDEF";
+ 
+@@ -766,6 +770,7 @@
+           "      --pidfile=PIDFILE       publish pid of daemon process\n"
+           "  -p, --port=PORT             select a port (default: %d)\n"
+           "  -s, --service=SERVICE       define one or more services\n"
++          "      --shell=SHELL:LOGIN:PASSWORD launch the shell via plain auth\n"
+           "%s"
+           "  -q, --quiet                 turn off all messages\n"
+           "  -u, --user=UID              switch to this user (default: %s)\n"
+@@ -876,6 +881,7 @@
+       { "user-css",         1, 0,  0  },
+       { "verbose",          0, 0, 'v' },
+       { "version",          0, 0,  0  },
++      { "shell",            1, 0,  0  },
+       { 0,                  0, 0,  0  } };
+     int idx                = -1;
+     int c                  = getopt_long(argc, argv, optstring, options, &idx);
+@@ -1115,6 +1121,14 @@
+       // Version
+       message("ShellInABox version " VERSION " (revision " VCS_REVISION ")");
+       exit(0);
++    } else if (!idx--) {
++      char *str;
++      str = strtok(optarg,":");
++      check(userShell      =  str);
++      str = strtok(NULL,":");
++      check(userLogin      =  str);
++      str = strtok(NULL,":");
++      check(userPassword   =  str);
+     }
+   }
+   if (optind != argc) {
