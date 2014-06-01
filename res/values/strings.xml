@@ -21,11 +21,11 @@
     <string name="title_localhost_preference">Localhost</string>
     <string name="summary_localhost_preference">Only listen on 127.0.0.1</string>
     
-    <string name="title_autostart_preference">Root</string>
-    <string name="summary_autostart_preference">Require superuser permissions</string>
+    <string name="title_root_preference">Root</string>
+    <string name="summary_root_preference">Require superuser permissions</string>
     
-    <string name="title_root_preference">Autostart</string>
-    <string name="summary_root_preference">Run when the application opens</string>
+    <string name="title_autostart_preference">Autostart</string>
+    <string name="summary_autostart_preference">Run when the application opens</string>
     
     <string name="title_shell_preference">Shell</string>
     <string name="dialog_title_shell_preference">Shell</string>

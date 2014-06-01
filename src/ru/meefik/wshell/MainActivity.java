@@ -102,7 +102,8 @@ public class MainActivity extends Activity {
 	}
 	
 	private void loadPrefs() {
-		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
 
 		PORT = sp.getString("port", getString(R.string.port));
 		LOCALHOST = sp.getBoolean("localhost", getString(R.string.localhost).equals("true"));
@@ -182,6 +183,11 @@ public class MainActivity extends Activity {
 			copyFile(SHELL_IN_A_BOX, file);
 			file.setExecutable(true);
 		}
+		file = new File(FILES_DIR + File.separator + "pkill");
+		if (!file.exists()) {
+			copyFile("pkill", file);
+			file.setExecutable(true);
+		}
 	}
 	
 	private void start(boolean restart) {
@@ -197,7 +203,7 @@ public class MainActivity extends Activity {
 			list.add("sh");
 		}
 		if (restart) {
-			list.add("pkill -9 " + SHELL_IN_A_BOX);
+			list.add(FILES_DIR + File.separator + "pkill -9 " + SHELL_IN_A_BOX);
 			list.add("sleep 1");
 		}
 		list.add(cmd);
@@ -212,7 +218,7 @@ public class MainActivity extends Activity {
 		} else {
 			list.add("sh");
 		};
-		String cmd = "pkill -9 " + SHELL_IN_A_BOX;
+		String cmd = FILES_DIR + File.separator + "pkill -9 " + SHELL_IN_A_BOX;
 		list.add(cmd);
 		new Thread(new ExecCmd(list)).start();
 		ACTIVE = false;
