@@ -7,6 +7,8 @@
     <uses-sdk
         android:minSdkVersion="7"
         android:targetSdkVersion="18" />
+    
+	<uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -21,6 +23,14 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="ru.meefik.wshell.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
+        <activity
+            android:name="ru.meefik.wshell.AboutActivity"
+            android:label="@string/title_activity_about" >
         </activity>
     </application>
 
