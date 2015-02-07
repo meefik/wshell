@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
 		FILES_DIR = getApplicationInfo().dataDir;
 		extractData();
 		
-		TextView tv = (TextView) findViewById(R.id.textView1);
+		TextView tv = (TextView) findViewById(R.id.addressBox);
 		tv.setOnClickListener(new OnClickListener() {
 	        @Override
 	        public void onClick(View v) {
@@ -239,21 +239,25 @@ public class MainActivity extends Activity {
 	
 	private void runURL() {
 		if (ACTIVE) {
-			TextView tv = (TextView) findViewById(R.id.textView1);
-			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse((String) tv.getText()));
+			TextView tv = (TextView) findViewById(R.id.addressBox);
+			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://" + (String) tv.getText()));
 			startActivity(browserIntent);
 		}
 	}
 	
 	private void printStatus() {
-		String text = "Inactive";
+		String address = "???";
 		if (ACTIVE) {
 			String ipaddress = "127.0.0.1";
 			if (!LOCALHOST) ipaddress = getLocalIpAddress();
-			text = "http://"+ipaddress+":"+PORT;
+			address = ipaddress+":"+PORT;
 		}
-		TextView tv = (TextView) findViewById(R.id.textView1);
-		tv.setText(text);
+		TextView addressBox = (TextView) findViewById(R.id.addressBox);
+		addressBox.setText(address);
+		TextView loginBox = (TextView) findViewById(R.id.loginBox);
+		loginBox.setText(USERNAME);
+		TextView passwordBox = (TextView) findViewById(R.id.passwordBox);
+		passwordBox.setText(PASSWORD);
 	}
 
 }
