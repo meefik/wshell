@@ -22,11 +22,12 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
-	
+
 	private static final String SHELL_IN_A_BOX = "shellinaboxd";
 	private static String FILES_DIR;
 	private static String PORT;
@@ -37,6 +38,7 @@ public class MainActivity extends Activity {
 	private static String USERNAME;
 	private static String PASSWORD;
 	private static Boolean ACTIVE;
+	private static Boolean SCREEN_LOCK;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,14 +46,14 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		FILES_DIR = getApplicationInfo().dataDir;
 		extractData();
-		
+
 		TextView tv = (TextView) findViewById(R.id.addressBox);
 		tv.setOnClickListener(new OnClickListener() {
-	        @Override
-	        public void onClick(View v) {
-	        	runURL();
-	        }
-	    });
+			@Override
+			public void onClick(View v) {
+				runURL();
+			}
+		});
 	}
 
 	@Override
@@ -59,7 +61,7 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -85,34 +87,46 @@ public class MainActivity extends Activity {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void onPause() {
 		super.onPause();
 	}
-	
+
 	@Override
 	public void onResume() {
 		super.onResume();
 		loadPrefs();
+		// screen lock
+		if (SCREEN_LOCK)
+			this.getWindow().addFlags(
+					WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		else
+			this.getWindow().clearFlags(
+					WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		// start daemon
 		if (AUTOSTART && !ACTIVE) {
 			start(false);
 		}
 		printStatus();
 	}
-	
+
 	private void loadPrefs() {
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(getApplicationContext());
 
 		PORT = sp.getString("port", getString(R.string.port));
-		LOCALHOST = sp.getBoolean("localhost", getString(R.string.localhost).equals("true"));
+		LOCALHOST = sp.getBoolean("localhost", getString(R.string.localhost)
+				.equals("true"));
 		ROOT = sp.getBoolean("root", getString(R.string.root).equals("true"));
-		AUTOSTART = sp.getBoolean("autostart", getString(R.string.autostart).equals("true"));
+		AUTOSTART = sp.getBoolean("autostart", getString(R.string.autostart)
+				.equals("true"));
 		SHELL = sp.getString("shell", getString(R.string.shell));
 		USERNAME = sp.getString("username", getString(R.string.username));
 		PASSWORD = sp.getString("password", getString(R.string.password));
 		ACTIVE = isAlive();
+		SCREEN_LOCK = sp.getBoolean("screenlock",
+				getString(R.string.screenlock).equals("true") ? true : false);
 	}
 
 	private boolean copyFile(String sourceFile, File targetFile) {
@@ -155,7 +169,7 @@ public class MainActivity extends Activity {
 		}
 		return result;
 	}
-	
+
 	private String getLocalIpAddress() {
 		String ip = "127.0.0.1";
 		try {
@@ -176,7 +190,7 @@ public class MainActivity extends Activity {
 		}
 		return ip;
 	}
-	
+
 	private void extractData() {
 		File file = new File(FILES_DIR + File.separator + SHELL_IN_A_BOX);
 		if (!file.exists()) {
@@ -189,10 +203,11 @@ public class MainActivity extends Activity {
 			file.setExecutable(true);
 		}
 	}
-	
+
 	private void start(boolean restart) {
 		List<String> list = new ArrayList<String>();
-		String cmd = FILES_DIR + File.separator + SHELL_IN_A_BOX + " -t -p "+PORT+" --shell="+SHELL+":"+USERNAME+":"+PASSWORD;
+		String cmd = FILES_DIR + File.separator + SHELL_IN_A_BOX + " -t -p "
+				+ PORT + " --shell=" + SHELL + ":" + USERNAME + ":" + PASSWORD;
 		if (LOCALHOST) {
 			cmd += " --localhost-only";
 		}
@@ -210,24 +225,25 @@ public class MainActivity extends Activity {
 		new Thread(new ExecCmd(list)).start();
 		ACTIVE = true;
 	}
-	
+
 	private void stop() {
 		List<String> list = new ArrayList<String>();
 		if (ROOT) {
 			list.add("su");
 		} else {
 			list.add("sh");
-		};
+		}
+		;
 		String cmd = FILES_DIR + File.separator + "pkill -9 " + SHELL_IN_A_BOX;
 		list.add(cmd);
 		new Thread(new ExecCmd(list)).start();
 		ACTIVE = false;
 	}
-	
+
 	private boolean isAlive() {
 		boolean active = false;
 		List<String> list = new ArrayList<String>();
-		String cmd = "ps | grep " + SHELL_IN_A_BOX;	
+		String cmd = "ps | grep " + SHELL_IN_A_BOX;
 		list.add(cmd);
 		ExecCmd r = new ExecCmd(list);
 		r.run();
@@ -236,21 +252,23 @@ public class MainActivity extends Activity {
 		}
 		return active;
 	}
-	
+
 	private void runURL() {
 		if (ACTIVE) {
 			TextView tv = (TextView) findViewById(R.id.addressBox);
-			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://" + (String) tv.getText()));
+			Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+					Uri.parse("http://" + (String) tv.getText()));
 			startActivity(browserIntent);
 		}
 	}
-	
+
 	private void printStatus() {
 		String address = "???";
 		if (ACTIVE) {
 			String ipaddress = "127.0.0.1";
-			if (!LOCALHOST) ipaddress = getLocalIpAddress();
-			address = ipaddress+":"+PORT;
+			if (!LOCALHOST)
+				ipaddress = getLocalIpAddress();
+			address = ipaddress + ":" + PORT;
 		}
 		TextView addressBox = (TextView) findViewById(R.id.addressBox);
 		addressBox.setText(address);

@@ -20,11 +20,11 @@ public class ExecCmd implements Runnable {
 		this.params = params;
 		output = new ArrayList<String>();
 	}
-	
+
 	public List<String> getOutput() {
 		return output;
 	}
-	
+
 	public void run() {
 		try {
 			Process process = Runtime.getRuntime().exec(params.get(0));
@@ -39,7 +39,7 @@ public class ExecCmd implements Runnable {
 
 			final InputStream stdout = process.getInputStream();
 			final InputStream stderr = process.getErrorStream();
-			
+
 			(new Thread() {
 				public void run() {
 					setLogger(stdout);
@@ -53,16 +53,16 @@ public class ExecCmd implements Runnable {
 			}).start();
 
 			process.waitFor();
-			
+
 			stdin.close();
 			stdout.close();
 			stderr.close();
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void setLogger(InputStream stdstream) {
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -79,5 +79,5 @@ public class ExecCmd implements Runnable {
 			e.printStackTrace();
 		}
 	}
-	
+
 }

@@ -15,6 +15,9 @@
     
     <string name="general_preferences">General</string>
     
+    <string name="title_screenlock_preference">Lock screen</string>
+    <string name="summary_screenlock_preference">Keep screen active while the application is running</string>
+    
     <string name="title_port_preference">Port</string>
     <string name="dialog_title_port_preference">Port</string>
     
@@ -40,6 +43,7 @@
     <string name="localhost">false</string>
     <string name="root">false</string>
     <string name="autostart">false</string>
+    <string name="screenlock">true</string>
     <string name="port">4200</string>
     <string name="shell">/system/bin/sh</string>
     <string name="username">android</string>

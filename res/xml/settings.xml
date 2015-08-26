@@ -5,6 +5,12 @@
         
     <PreferenceCategory
             android:title="@string/general_preferences">
+            
+        <CheckBoxPreference
+            android:defaultValue="@string/screenlock"
+            android:key="screenlock"
+            android:summary="@string/summary_screenlock_preference"
+            android:title="@string/title_screenlock_preference" />
 
 	    <EditTextPreference
     	        android:key="port"
