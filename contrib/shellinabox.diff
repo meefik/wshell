@@ -1,5 +1,5 @@
---- launcher.h.orig	2014-05-10 12:04:12.000000000 +0400
-+++ launcher.h	2014-05-10 12:04:27.000000000 +0400
+--- a/launcher.h	2014-05-10 12:04:12.000000000 +0400
++++ b/launcher.h	2014-05-10 12:04:27.000000000 +0400
 @@ -50,6 +50,9 @@
  #include "shellinabox/session.h"
  #include "logging/logging.h"
@@ -10,8 +10,8 @@
  
  struct LaunchRequest {
    int  service;
---- launcher.c.orig	2012-04-21 21:30:44.000000000 +0400
-+++ launcher.c	2014-05-10 12:40:08.000000000 +0400
+--- a/launcher.c	2012-04-21 21:30:44.000000000 +0400
++++ b/launcher.c	2014-05-10 12:40:08.000000000 +0400
 @@ -1445,6 +1445,40 @@
    }
  }
@@ -66,8 +66,8 @@
    // Assert root privileges in order to update utmp entry.
    setresuid(0, 0, 0);
    setresgid(0, 0, 0);
---- shellinaboxd.c.orig	2014-05-10 12:04:46.000000000 +0400
-+++ shellinaboxd.c	2014-05-10 12:10:12.000000000 +0400
+--- a/shellinaboxd.c	2014-05-10 12:04:46.000000000 +0400
++++ b/shellinaboxd.c	2014-05-10 12:10:12.000000000 +0400
 @@ -121,6 +121,10 @@
  static sigjmp_buf     jmpenv;
  static volatile int   exiting;
